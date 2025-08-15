@@ -25,8 +25,6 @@ UPDATE_PACKAGE() {
 	for NAME in "${PKG_LIST[@]}"; do
 		# 查找匹配的目录
 		echo "搜索目录: $NAME"
-		# 先删除可能存在的旧目录
-	    rm -rf ./package/lean/$PKG_NAME
 		local FOUND_DIRS=$(find ./feeds/luci/ ./feeds/packages/ -maxdepth 3 -type d -iname "*$NAME*" 2>/dev/null)
 
 		# 删除找到的目录
@@ -42,8 +40,6 @@ UPDATE_PACKAGE() {
 
 	# 克隆 GitHub 仓库
 	git clone --depth=1 --single-branch --branch $PKG_BRANCH "https://github.com/$PKG_REPO.git"
-	# 先删除可能存在的旧目录
-	#rm -rf ./package/lean/$PKG_NAME
 	# 处理克隆的仓库
 	if [[ "$PKG_SPECIAL" == "pkg" ]]; then
 		find ./$REPO_NAME/*/ -maxdepth 3 -type d -iname "*$PKG_NAME*" -prune -exec cp -rf {} ./package/lean/ \;
@@ -108,7 +104,7 @@ if [ -d *"homeproxy"* ]; then
 
 	cd . && rm -rf ./$HP_RULE/
 
-	cd $PKG_PATH && echo "homeproxy数据已更新!"
+	echo "homeproxy数据已更新!"
 fi
 
 #修复TailScale配置文件冲突
@@ -118,7 +114,7 @@ if [ -f "$TS_FILE" ]; then
 	
 	sed -i '/\/files/d' $TS_FILE
 
-	cd $PKG_PATH && echo "tailscale修复成功!"
+	echo "tailscale修复成功!"
 fi
 
 #修复Rust编译失败
@@ -128,7 +124,7 @@ if [ -f "$RUST_FILE" ]; then
 
 	sed -i 's/ci-llvm=true/ci-llvm=false/g' $RUST_FILE
 
-	cd $PKG_PATH && echo "rust修复成功!"
+	echo "rust修复成功!"
 fi
 
 #修复DiskMan编译失败
@@ -139,7 +135,7 @@ if [ -f "$DM_FILE" ]; then
 	sed -i 's/fs-ntfs/fs-ntfs3/g' $DM_FILE
 	sed -i '/ntfs-3g-utils /d' $DM_FILE
 
-	cd $PKG_PATH && echo "diskman修复成功!"
+	echo "diskman修复成功!"
 fi
 
 #修复状态灯
@@ -150,7 +146,7 @@ if [ -f "$LED_FILE" ]; then
 	sed -i 's/led-boot = &led_status_green;/led-boot = &led_status_blue;/g' $LED_FILE
  	sed -i 's/led-running = &led_status_blue;/led-running = &led_status_green;/g' $LED_FILE
 
-	cd $PKG_PATH && echo "状态灯修复完成!"
+	cecho "状态灯修复完成!"
 fi
 
 #修复5G不支持160
@@ -174,7 +170,7 @@ if [ -f "$WIRELESS_FILE" ]; then
     # 注意：这里需要更精确的匹配，以避免删除其他地方的 VHT160
     sed -i "s/|VHT160\(\/.test(htval))\)//g" $WIRELESS_FILE
 
-    cd $PKG_PATH && echo "wireless.js 文件修复完成！"
+    echo "wireless.js 文件修复完成！"
 else
     echo "错误：文件 wireless.js 未找到。"
 fi
@@ -191,7 +187,7 @@ if [ -d "$V2RAY_FILE" ]; then
 	cp -f "$SH_FILE" "$V2RAY_FILE/init.sh"
 	cp -f "$UP_FILE" "$V2RAY_FILE/v2ray-geodata-updater"
 
-	cd $PKG_PATH && echo "v2ray-geodata替换完成!"
+	echo "v2ray-geodata替换完成!"
 fi
 
 #设置nginx默认配置和修复quickstart温度显示
@@ -220,7 +216,7 @@ src/gz openwrt_routing https://downloads.immortalwrt.org/releases/24.10-SNAPSHOT
 src/gz openwrt_telephony https://downloads.immortalwrt.org/releases/24.10-SNAPSHOT/packages/aarch64_cortex-a53/telephony/
 EOF
 NEW_END
-    cd $PKG_PATH && echo "替换软件源完成！"
+    echo "替换软件源完成！"
 fi
 
 #修改CPU 性能优化调节名称显示
@@ -229,7 +225,7 @@ po_file="$path/po/zh_Hans/cpufreq.po"
 
 if [ -d "$path" ] && [ -f "$po_file" ]; then
     sed -i 's/msgstr "CPU 性能优化调节"/msgstr "性能调节"/g' "$po_file"
-    cd $PKG_PATH && echo "cpu调节更名完成"
+    echo "cpu调节更名完成"
 else
     echo "cpufreq.po文件未找到"
     return 1
@@ -251,7 +247,7 @@ if [ -f "$makefile_path" ]; then
 \telse \\\
 \t\t\$(INSTALL_BIN) \$(PKG_BUILD_DIR)\/quickfile-aarch64_generic \$(1)\/usr\/bin\/quickfile; \\\
 \tfi' "$makefile_path"
-	cd $PKG_PATH && echo "添加quickfile成功"
+	echo "添加quickfile成功"
 fi
 
 #修改argon背景图片
@@ -262,7 +258,7 @@ target_file="$theme_path/bg1.jpg"
 
 if [ -f "$source_file" ]; then
     cp -f "$source_file" "$target_file"
-    cd $PKG_PATH && echo "背景图片更新成功"
+    echo "背景图片更新成功"
 else
     echo "错误：未找到源图片文件"
 fi
@@ -273,7 +269,7 @@ po_file="$tb_path/po/zh_Hans/turboacc.po"
 
 if [ -d "$tb_path" ] && [ -f "$po_file" ]; then
     sed -i 's/msgstr "Turbo ACC 网络加速"/msgstr "网络加速"/g' "$po_file"
-    cd $PKG_PATH && echo "turboacc名称更改完成"
+    echo "turboacc名称更改完成"
 else
     echo "turboacc文件或目录不存在，跳过更改"
 fi
@@ -293,7 +289,7 @@ if [ -f $CFG_PATH ] && [ -f $CFG2_PATH ]; then
  	  sed -i 's/LEDE/'$HOST_NAME'/g' $CFG_PATH $CFG2_PATH
 	  #修改immortalwrt.lan关联IP
 	  sed -i "s/192\.168\.[0-9]*\.[0-9]*/$LAN_ADDR/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
-    cd $PKG_PATH && echo "访问ip修改完成!"
+    echo "访问ip修改完成!"
 fi
 
 # 修改wifi参数
@@ -332,7 +328,6 @@ if [ -f "$WIFI_UC" ]; then
     echo "Wi-Fi 参数修改和添加完成！"
 else
     echo "Error: mac80211.sh 文件未找到，路径为：$WIFI_UC"
-    exit 1
 fi
 
 
