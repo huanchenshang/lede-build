@@ -54,7 +54,7 @@ UPDATE_PACKAGE() {
 #UPDATE_PACKAGE "luci-app-argon-config" "sbwml/luci-theme-argon" "main" "pkg"
 #UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "js"
 
-UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main" "name"
+#UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main" "name"
 #UPDATE_PACKAGE "passwall-packages" "xiaorouji/openwrt-passwall-packages" "main"
 #UPDATE_PACKAGE "passwall" "xiaorouji/openwrt-passwall" "main" "pkg"
 #UPDATE_PACKAGE "passwall2" "xiaorouji/openwrt-passwall2" "main" "pkg"
