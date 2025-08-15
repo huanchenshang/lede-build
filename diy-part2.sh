@@ -165,9 +165,9 @@ fi
 
 # 自定义v2ray-geodata下载
 V2RAY_FILE="./feeds/packages/net/v2ray-geodata"
-MF_FILE="./package/lean/v2ray-geodata/Makefile"
-SH_FILE="./package/lean/v2ray-geodata/init.sh"
-UP_FILE="./package/lean/v2ray-geodata/v2ray-geodata-updater"
+MF_FILE="./files/package/v2ray-geodata/Makefile"
+SH_FILE="./files/package/v2ray-geodata/init.sh"
+UP_FILE="./files/package/v2ray-geodata/v2ray-geodata-updater"
 if [ -d "$V2RAY_FILE" ]; then
 	echo " "
 
@@ -245,7 +245,7 @@ fi
 
 #修改argon背景图片
 theme_path="./feeds/luci/themes/luci-theme-argon/htdocs/luci-static/argon/background"
-source_path="./images"
+source_path="./files/images"
 source_file="$source_path/bg1.jpg"
 target_file="$theme_path/bg1.jpg"
 
