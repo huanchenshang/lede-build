@@ -291,7 +291,7 @@ fi
 WRT_SSID_2G="iStoreOS-2.4G"
 WRT_SSID_5G="iStoreOS-5G"
 WRT_WORD="ai.ni520"
-WIFI_UC="./kernel/mac80211/files/lib/wifi/mac80211.sh"
+WIFI_UC="$PKG_PATH/kernel/mac80211/files/lib/wifi/mac80211.sh"
 
 if [ -f "$WIFI_UC" ]; then
     echo "--- 正在修改 mac80211.sh 中的 Wi-Fi 参数 ---"
