@@ -28,6 +28,9 @@ env:
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
+#CI权限
+permissions: write-all
+
 jobs:
   build:
     runs-on: ubuntu-22.04
