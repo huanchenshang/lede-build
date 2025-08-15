@@ -146,7 +146,7 @@ if [ -f "$LED_FILE" ]; then
 	sed -i 's/led-boot = &led_status_green;/led-boot = &led_status_blue;/g' $LED_FILE
  	sed -i 's/led-running = &led_status_blue;/led-running = &led_status_green;/g' $LED_FILE
 
-	cecho "状态灯修复完成!"
+	echo "状态灯修复完成!"
 fi
 
 #修复5G不支持160
