@@ -20,6 +20,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: 0 */18 * * *
+#CI权限
+permissions: write-all
 
 jobs:
   check:
