@@ -87,26 +87,6 @@ UPDATE_PACKAGE "luci-app-unishare" "kenzok8/small-package" "main" "pkg"
 
 PKG_PATH="./package/"
 
-#预置HomeProxy数据
-if [ -d *"homeproxy"* ]; then
-	HP_RULE="surge"
-	HP_PATH="./feeds/luci/applications/luci-app-homeproxy/root/etc/homeproxy"
-
-	rm -rf ./$HP_PATH/resources/*
-
-	git clone -q --depth=1 --single-branch --branch "release" "https://github.com/Loyalsoldier/surge-rules.git" ./$HP_RULE/
-	cd ./$HP_RULE/ && RES_VER=$(git log -1 --pretty=format:'%s' | grep -o "[0-9]*")
-
-	echo $RES_VER | tee china_ip4.ver china_ip6.ver china_list.ver gfw_list.ver
-	awk -F, '/^IP-CIDR,/{print $2 > "china_ip4.txt"} /^IP-CIDR6,/{print $2 > "china_ip6.txt"}' cncidr.txt
-	sed 's/^\.//g' direct.txt > china_list.txt ; sed 's/^\.//g' gfw.txt > gfw_list.txt
-	mv -f ./{china_*,gfw_list}.{ver,txt} ./$HP_PATH/resources/
-
-	cd .. && rm -rf ./$HP_RULE/
-
-	echo "homeproxy数据已更新!"
-fi
-
 #修复TailScale配置文件冲突
 TS_FILE=$(find ./feeds/packages/ -maxdepth 3 -type f -wholename "*/tailscale/Makefile")
 if [ -f "$TS_FILE" ]; then
@@ -115,6 +95,8 @@ if [ -f "$TS_FILE" ]; then
 	sed -i '/\/files/d' $TS_FILE
 
 	echo "tailscale修复成功!"
+else
+    echo "tailsclae修复失败"
 fi
 
 #修复Rust编译失败
@@ -125,6 +107,8 @@ if [ -f "$RUST_FILE" ]; then
 	sed -i 's/ci-llvm=true/ci-llvm=false/g' $RUST_FILE
 
 	echo "rust修复成功!"
+else
+    echo "rust修复失败" 
 fi
 
 #修复DiskMan编译失败
@@ -136,6 +120,8 @@ if [ -f "$DM_FILE" ]; then
 	sed -i '/ntfs-3g-utils /d' $DM_FILE
 
 	echo "diskman修复成功!"
+else
+    echo "diskman修复失败" 
 fi
 
 #修复状态灯
@@ -147,6 +133,8 @@ if [ -f "$LED_FILE" ]; then
  	sed -i 's/led-running = &led_status_blue;/led-running = &led_status_green;/g' $LED_FILE
 
 	echo "状态灯修复完成!"
+else
+    echo "状态灯修复失败" 
 fi
 
 #修复5G不支持160
@@ -188,6 +176,8 @@ if [ -d "$V2RAY_FILE" ]; then
 	cp -f "$UP_FILE" "$V2RAY_FILE/v2ray-geodata-updater"
 
 	echo "v2ray-geodata替换完成!"
+else
+    echo "v2ray-geodata替换失败" 
 fi
 
 #设置nginx默认配置和修复quickstart温度显示
@@ -217,6 +207,8 @@ src/gz openwrt_telephony https://downloads.immortalwrt.org/releases/24.10-SNAPSH
 EOF
 NEW_END
     echo "替换软件源完成！"
+else
+    echo "替换软件源失败！" 
 fi
 
 #修改CPU 性能优化调节名称显示
@@ -228,7 +220,6 @@ if [ -d "$path" ] && [ -f "$po_file" ]; then
     echo "cpu调节更名完成"
 else
     echo "cpufreq.po文件未找到"
-    return 1
 fi
 
 #添加quickfile文件管理
@@ -248,6 +239,8 @@ if [ -f "$makefile_path" ]; then
 \t\t\$(INSTALL_BIN) \$(PKG_BUILD_DIR)\/quickfile-aarch64_generic \$(1)\/usr\/bin\/quickfile; \\\
 \tfi' "$makefile_path"
 	echo "添加quickfile成功"
+else
+    echo "添加quickfile失败！" 
 fi
 
 #修改argon背景图片
@@ -290,13 +283,15 @@ if [ -f $CFG_PATH ] && [ -f $CFG2_PATH ]; then
 	  #修改immortalwrt.lan关联IP
 	  sed -i "s/192\.168\.[0-9]*\.[0-9]*/$LAN_ADDR/g" $(find ./feeds/luci/modules/luci-mod-system/ -type f -name "flash.js")
     echo "访问ip修改完成!"
+else
+    echo "访问ip修改失败！" 
 fi
 
 # 修改wifi参数
 WRT_SSID_2G="iStoreOS-2.4G"
 WRT_SSID_5G="iStoreOS-5G"
 WRT_WORD="ai.ni520"
-WIFI_UC="$/kernel/mac80211/files/lib/wifi/mac80211.sh"
+WIFI_UC="./kernel/mac80211/files/lib/wifi/mac80211.sh"
 
 if [ -f "$WIFI_UC" ]; then
     echo "--- 正在修改 mac80211.sh 中的 Wi-Fi 参数 ---"
