@@ -126,11 +126,11 @@ fi
 
 #修复状态灯
 LED_FILE="./target/linux/qualcommax/files/arch/arm64/boot/dts/qcom/ipq6000-re-ss-01.dts"
+DTS_FILE="./files/ipq6018-re-ss-01.dts"
 if [ -f "$LED_FILE" ]; then
 	echo " "
  
-	sed -i 's/led-boot = &led_status_green;/led-boot = &led_status_blue;/g' $LED_FILE
- 	sed -i 's/led-running = &led_status_blue;/led-running = &led_status_green;/g' $LED_FILE
+    cp -f "$DTS_FILE" "$LED_FILE"
 
 	echo "状态灯修复完成!"
 else
@@ -288,37 +288,26 @@ else
 fi
 
 # 修改wifi参数
-WRT_SSID_2G="iStoreOS-2.4G"
-WRT_SSID_5G="iStoreOS-5G"
+WRT_SSID="iStoreOS"
 WRT_WORD="ai.ni520"
 WIFI_UC="$PKG_PATH/kernel/mac80211/files/lib/wifi/mac80211.sh"
 
 if [ -f "$WIFI_UC" ]; then
     echo "--- 正在修改 mac80211.sh 中的 Wi-Fi 参数 ---"
 
-    # 使用sed命令将默认的ssid设置替换为case语句，以区分2.4G和5G
-    sed -i "/set wireless.default_radio\${devidx}.ssid=LEDE/c \\
-            case \"\${mode_band}\" in\\
-            2g) set wireless.default_radio\${devidx}.ssid='$WRT_SSID_2G' ;;\
-            5g) set wireless.default_radio\${devidx}.ssid='$WRT_SSID_5G' ;;\
-            esac" "$WIFI_UC"
-
-    # 修改WIFI加密：将encryption=none替换为psk2+ccmp
+    # 使用双引号来确保变量被正确扩展
+    sed -i "s/ssid=LEDE/ssid='$WRT_SSID'/g" "$WIFI_UC"
     sed -i "s/encryption=none/encryption='psk2+ccmp'/g" "$WIFI_UC"
-
-    # 修改WIFI地区：将country=US替换为CN
     sed -i "s/country=US/country='CN'/g" "$WIFI_UC"
 
-    # 在 uci batch 中添加 mu_beamformer 和 txpower
     # 在 'set wireless.radio${devidx}.country='CN'' 行之后插入
-    sed -i "/country='CN'/a \
-            set wireless.radio\${devidx}.mu_beamformer='1'\n\
-            set wireless.radio\${devidx}.txpower='20'" "$WIFI_UC"
+    sed -i "/country='CN'/a \n\
+        set wireless.radio\${devidx}.mu_beamformer='1'\n\
+        set wireless.radio\${devidx}.txpower='20'" "$WIFI_UC"
 
-    # 在 uci batch 中添加 key
     # 在 'set wireless.default_radio${devidx}.encryption='psk2+ccmp'' 行之后插入
-    sed -i "/encryption='psk2+ccmp'/a \
-            set wireless.default_radio\${devidx}.key='$WRT_WORD'" "$WIFI_UC"
+    sed -i "/encryption='psk2+ccmp'/a \n\
+        set wireless.default_radio\${devidx}.key='$WRT_WORD'" "$WIFI_UC"
 
     echo "Wi-Fi 参数修改和添加完成！"
 else
