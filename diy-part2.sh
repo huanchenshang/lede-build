@@ -54,7 +54,7 @@ UPDATE_PACKAGE() {
 #UPDATE_PACKAGE "luci-app-argon-config" "sbwml/luci-theme-argon" "main" "pkg"
 #UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "js"
 
-#UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main" "name"
+UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main" "name"
 #UPDATE_PACKAGE "passwall-packages" "xiaorouji/openwrt-passwall-packages" "main"
 #UPDATE_PACKAGE "passwall" "xiaorouji/openwrt-passwall" "main" "pkg"
 #UPDATE_PACKAGE "passwall2" "xiaorouji/openwrt-passwall2" "main" "pkg"
@@ -137,31 +137,43 @@ else
     echo "状态灯修复失败" 
 fi
 
-#修复5G不支持160
-WIRELESS_FILE="./feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js"
+#修复补丁编译失败
+QCA_FILE="./target/linux/qualcommax/patches-6.12/0600-2-qca-nss-ecm-support-PPPOE-offload.patch"
+QFIX_FILE="./files/0600-2-qca-nss-ecm-support-PPPOE-offload.patch"
+if [ -f "$QCA_FILE" ]; then
+	echo " "
+ 
+    cp -f "$QFIX_FILE" "$QCA_FILE"
 
-# 检查文件是否存在
-if [ -f "$WIRELESS_FILE" ]; then
-    echo "正在修复 wireless.js 文件.."
-
-    # 删除 'VHT160', '160 MHz', htmodelist.VHT160
-    sed -i "/'VHT160', '160 MHz', htmodelist.VHT160/d" $WIRELESS_FILE
-
-    # 删除 'HE160', '160 MHz', htmodelist.HE160
-    sed -i "/'HE160', '160 MHz', htmodelist.HE160/d" $WIRELESS_FILE
-
-    # 删除 if (/HE20|HE40|HE80|HE160/.test(htval)) 中的 |HE160
-    # 注意：这里需要更精确的匹配，以避免删除其他地方的 HE160
-    sed -i "s/|HE160\(\/.test(htval))\)/\1/g" $WIRELESS_FILE
-
-    # 删除 else if (/VHT20|VHT40|VHT80|VHT160/.test(htval)) 中的 |VHT160
-    # 注意：这里需要更精确的匹配，以避免删除其他地方的 VHT160
-    sed -i "s/|VHT160\(\/.test(htval))\)//g" $WIRELESS_FILE
-
-    echo "wireless.js 文件修复完成！"
+	echo "编译失败修复完成!"
 else
-    echo "错误：文件 wireless.js 未找到。"
+    echo "编译失败修复失败" 
 fi
+
+#修复5G不支持160
+#WIRELESS_FILE="./feeds/luci/modules/luci-mod-network/htdocs/luci-static/resources/view/network/wireless.js"
+# 检查文件是否存在
+#if [ -f "$WIRELESS_FILE" ]; then
+#    echo "正在修复 wireless.js 文件.."
+#
+#    # 删除 'VHT160', '160 MHz', htmodelist.VHT160
+#    sed -i "/'VHT160', '160 MHz', htmodelist.VHT160/d" $WIRELESS_FILE
+#
+#    # 删除 'HE160', '160 MHz', htmodelist.HE160
+#    sed -i "/'HE160', '160 MHz', htmodelist.HE160/d" $WIRELESS_FILE
+#
+#    # 删除 if (/HE20|HE40|HE80|HE160/.test(htval)) 中的 |HE160
+#    # 注意：这里需要更精确的匹配，以避免删除其他地方的 HE160
+#    sed -i "s/|HE160\(\/.test(htval))\)/\1/g" $WIRELESS_FILE
+#
+#    # 删除 else if (/VHT20|VHT40|VHT80|VHT160/.test(htval)) 中的 |VHT160
+#    # 注意：这里需要更精确的匹配，以避免删除其他地方的 VHT160
+#    sed -i "s/|VHT160\(\/.test(htval))\)//g" $WIRELESS_FILE
+#
+#    echo "wireless.js 文件修复完成！"
+#else
+#    echo "错误：文件 wireless.js 未找到。"
+#fi
 
 # 自定义v2ray-geodata下载
 V2RAY_FILE="./feeds/packages/net/v2ray-geodata"
