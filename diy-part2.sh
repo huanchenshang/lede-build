@@ -270,8 +270,8 @@ sed -i "s/luci-theme-bootstrap/luci-theme-argon/g" $(find ./feeds/luci/collectio
 #修改访问ip和主机名称
 LAN_ADDR="192.168.10.1"
 HOST_NAME="iStoreOS"
-#CFG_PATH="$PKG_PATH/base-files/files/bin/config_generate"
-CFG2_PATH="$PKG_PATH/base-files/luci2/bin/config_generate"
+#CFG_PATH="./package/base-files/files/bin/config_generate"
+CFG2_PATH="./package/base-files/luci2/bin/config_generate"
 if [ -f $CFG2_PATH ]; then
     echo " "
 	
