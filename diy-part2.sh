@@ -287,30 +287,49 @@ else
 fi
 
 # 修改wifi参数
+WIFI_UC="./package/kernel/mac80211/files/lib/wifi/mac80211.sh"
 WRT_SSID="iStoreOS"
-WRT_WORD="ai.ni520"
-WIFI_UC="$PKG_PATH/kernel/mac80211/files/lib/wifi/mac80211.sh"
+WRT_KEY="ai.ni520"
 
 if [ -f "$WIFI_UC" ]; then
     echo "--- 正在修改 mac80211.sh 中的 Wi-Fi 参数 ---"
 
-    # 使用双引号来确保变量被正确扩展
-    sed -i "s/ssid=LEDE/ssid='$WRT_SSID'/g" "$WIFI_UC"
-    sed -i "s/encryption=none/encryption='psk2+ccmp'/g" "$WIFI_UC"
-    sed -i "s/country=US/country='CN'/g" "$WIFI_UC"
+    # 1. 替换国家代码并插入 mu_beamformer 和 txpower
+    sed -i "s/set wireless.radio\${devidx}.country=US/set wireless.radio\${devidx}.country=CN\n            set wireless.radio\${devidx}.mu_beamformer=1\n            set wireless.radio\${devidx}.txpower=20/" "$WIFI_UC"
 
-    # 在 'set wireless.radio${devidx}.country='CN'' 行之后插入
-   sed -i "/country='CN'/a \n\
-        set wireless.radio\${devidx}.mu_beamformer='1'\n\
-        set wireless.radio\${devidx}.txpower='20'" "$WIFI_UC"
+    # 2. 替换加密方式为 psk2+ccmp，并插入密钥
+    sed -i "s/set wireless.default_radio\${devidx}.encryption=none/set wireless.default_radio\${devidx}.encryption=psk2+ccmp\n            set wireless.default_radio\${devidx}.key=${WRT_KEY}/" "$WIFI_UC"
 
-    # 在 'set wireless.default_radio${devidx}.encryption='psk2+ccmp'' 行之后插入
-    sed -i "/encryption='psk2+ccmp'/a \n\
-        set wireless.default_radio\${devidx}.key='$WRT_WORD'" "$WIFI_UC"
+    # 3. 创建一个临时文件，包含要插入的 case 语句块
+    cat > /tmp/ssid_case_block << EOF
+            \$(
+                case "\${mode_band}" in
+                    2g)
+                        echo "set wireless.default_radio\${devidx}.ssid=${WRT_SSID}_2.4G"
+                        ;;
+                    5g)
+                        echo "set wireless.default_radio\${devidx}.ssid=${WRT_SSID}_5G"
+                        ;;
+                    *)
+                        echo "set wireless.default_radio\${devidx}.ssid=${WRT_SSID}"
+                        ;;
+                esac
+            )
+EOF
 
-    echo "Wi-Fi 参数修改和添加完成！"
+    # 4. 删除旧的 SSID 行
+    sed -i '/set wireless.default_radio\${devidx}.ssid=LEDE/d' "$WIFI_UC"
+
+    # 5. 在 'set wireless.default_radio${devidx}.mode=ap' 行之后插入临时文件的内容
+    sed -i "/set wireless.default_radio\${devidx}.mode=ap/r /tmp/ssid_case_block" "$WIFI_UC"
+
+    # 6. 删除临时文件
+    rm /tmp/ssid_case_block
+
+    echo "Wi-Fi 参数修改完成！"
 else
     echo "Error: mac80211.sh 文件未找到，路径为：$WIFI_UC"
+    exit 1
 fi
 
 #以下为添加dae支持
