@@ -85,8 +85,6 @@ UPDATE_PACKAGE "webdav2" "kenzok8/small-package" "main" "pkg"
 UPDATE_PACKAGE "unishare" "kenzok8/small-package" "main" "pkg"
 UPDATE_PACKAGE "luci-app-unishare" "kenzok8/small-package" "main" "pkg"
 
-PKG_PATH="./package/"
-
 #修复TailScale配置文件冲突
 TS_FILE=$(find ./feeds/packages/ -maxdepth 3 -type f -wholename "*/tailscale/Makefile")
 if [ -f "$TS_FILE" ]; then
